@@ -1,2 +1,11 @@
-@echo off
-start "" "C:\path\to\your\python.exe" "C:\path\to\your\project\app.py"
+#!/usr/bin/env bash
+# GUI
+# uv run pst
+
+# CLI (interactive)
+# uv run pst-cli
+
+# CLI (non-interactive)
+# uv run pst-cli --name my-project --profile fastapi --dir ~/projects
+uv run pst
+

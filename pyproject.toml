@@ -1,0 +1,27 @@
+[project]
+name = "project-setup-tool"
+version = "0.1.0"
+description = "GUI tool for bootstrapping Python projects with Git, venv, ruff and VS Code."
+requires-python = ">=3.10"
+dependencies = [
+    "pyqt5>=5.15.11",
+    "requests>=2.32.3",
+]
+
+[project.scripts]
+pst     = "app:main"
+pst-cli = "cli:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["app", "cli", "profiles", "generators", "editor", "setup_service"]
+
+[tool.uv]
+override-dependencies = ["PyQt5-Qt5==5.15.2"]
+dev-dependencies = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

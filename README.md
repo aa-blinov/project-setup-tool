@@ -1,106 +1,151 @@
 # Project Setup Tool
 
-## Overview
-
-The **Project Setup Tool** is a Python-based application designed to streamline the process of initializing new projects. It automates the creation of project directories, virtual environments, Git repositories, and essential configuration files. The tool supports different types of projects, including basic Python projects, data analytics projects and FastAPI projects.
+A GUI + CLI tool for quickly bootstrapping Python projects with a predefined structure, virtual environment, Git, ruff, and VS Code configuration.
 
 ## Features
 
-- **Project Directory Creation**: Automatically creates a project directory with the specified name.
-- **Virtual Environment**: Sets up a Python virtual environment with `pip` installed.
-- **Git Initialization**: Initializes a Git repository and downloads a `.gitignore` file.
-- **Configuration Files**: Generates configuration files such as `ruff.toml`, `requirements.txt`, and VS Code settings.
-- **Project Templates**: Provides templates for different project types, including basic Python, data analytics, and FastAPI projects.
-- **Docker Support**: Creates Dockerfile and docker-compose.yml files for containerization.
-- **VS Code Integration**: Configures VS Code settings and opens the project in VS Code.
+- **18 project profiles** — from basic scripts to FastAPI+SQLAlchemy, Discord bots, MCP servers, and LLM agents
+- **GUI** (PyQt5): dark Material theme, output directory picker, per-profile dependency preview, progress bar, abort button
+- **CLI** (`pst-cli`): non-interactive mode with profile selection by slug or number, `--list`, `--no-editor`
+- **Project scaffolding**: directory + `.venv` via [uv](https://github.com/astral-sh/uv)
+- **Git**: `git init` + auto-download of Python `.gitignore`
+- **Linter**: `ruff.toml` with rules `E`, `F`, `W`, `B`, `C`
+- **Docker**: `Dockerfile` + `docker-compose.yml` tailored to each profile
+- **VS Code**: `.vscode/settings.json` with interpreter, ruff, and pytest settings
+- **Dependency installation**: `uv pip install` into the created virtual environment
+- **Editor auto-open**: tries VS Code, VS Code Insiders, Cursor, Windsurf, VSCodium; falls back to the system file explorer
+- **CI**: `.github/workflows/ci.yml` included in the tool itself
 
-## Dependencies
+## Profiles
 
-The Project Setup Tool relies on the following Python packages:
+| # | Slug | Label | Key packages |
+|---|------|-------|--------------|
+| 1 | `basic` | Basic Python Project | — |
+| 2 | `data` | Data Analytics | jupyter, pandas, numpy, matplotlib |
+| 3 | `fastapi` | FastAPI | fastapi, uvicorn, httpx |
+| 4 | `fastapi-db` | FastAPI + SQLAlchemy + Alembic | fastapi, sqlalchemy[asyncio], alembic, aiosqlite |
+| 5 | `flask` | Flask Web App | flask, flask-cors |
+| 6 | `streamlit` | Streamlit Dashboard | streamlit, pandas, plotly |
+| 7 | `cli` | CLI Tool (Typer) | typer, rich |
+| 8 | `telegram` | Telegram Bot (aiogram 3) | aiogram, python-dotenv |
+| 9 | `discord` | Discord Bot (discord.py) | discord.py, python-dotenv |
+| 10 | `django` | Django Web App | django, gunicorn, python-dotenv |
+| 11 | `grpc` | gRPC Service | grpcio, grpcio-tools, protobuf |
+| 12 | `celery` | Celery Worker | celery, redis, python-dotenv |
+| 13 | `ml` | ML Project (scikit-learn) | scikit-learn, pandas, numpy, mlflow |
+| 14 | `scraper` | Web Scraper (httpx + BS4) | httpx, beautifulsoup4, lxml |
+| 15 | `pypi` | PyPI Package | build, twine, hatchling |
+| 16 | `langchain` | LangChain Agent | langchain, langchain-openai, python-dotenv |
+| 17 | `llama` | LlamaIndex Agent | llama-index, llama-index-llms-openai |
+| 18 | `mcp` | MCP Server (Model Context Protocol) | mcp[cli] |
+| 19 | `lambda` | AWS Lambda (Serverless) | boto3, aws-lambda-powertools, python-dotenv |
+| 20 | `pytest-plugin` | pytest Plugin | pytest, hatchling |
 
-- **PyQt5**: For the graphical user interface. The tool uses PyQt5 to create a modern, user-friendly interface with a dark theme inspired by Material Design.
-- **venv**: For creating virtual environments.
-- **requests**: For downloading the `.gitignore` file.
+## Requirements
 
-## How It Works
+- Python 3.10+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- Git
+- A supported editor (optional): VS Code, VS Code Insiders, Cursor, Windsurf, VSCodium
 
-1. **User Interface**: The tool provides a simple GUI where users can input the project name and select the project type.
-2. **Project Creation**: Upon clicking the "Create Project" button, the tool performs the following steps:
-   - Creates the project directory.
-   - Sets up a virtual environment.
-   - Downloads a `.gitignore` file.
-   - Initializes a Git repository.
-   - Generates configuration files (`ruff.toml`, `requirements.txt`, etc.).
-   - Creates project-specific files and directories based on the selected type.
-   - Configures VS Code settings.
-   - Installs dependencies.
-   - Opens the project in VS Code.
-3. **Progress Tracking**: The tool provides real-time feedback through a progress bar and an output console that highlights different log levels (INFO, SUCCESS, ERROR).
+## Installation
 
-## Getting Started
+```bash
+git clone https://github.com/aa-blinov/project-setup-tool.git
+cd project-setup-tool
+uv sync
+```
 
-### Prerequisites
+## Usage
 
-- Python 3.12 or higher
-- Git installed on your system
-- VS Code installed on your system
+### GUI
 
-### Installation
+```bash
+uv run pst
+```
 
-1. Clone the repository:
+1. Enter a project name
+2. Select a profile from the dropdown — description and packages are shown below
+3. Choose the output directory (defaults to `~/projects`)
+4. Click **Create Project**
 
-   ```sh
-   git clone https://github.com/yourusername/project-setup-tool.git
-   cd project-setup-tool
-   ```
-2. Install the required dependencies:
+### CLI
 
-   ```sh
-   pip install -r requirements.txt
-   ```
+```bash
+# Interactive — prompts for name and profile
+uv run pst-cli
 
-### Running the Project
+# Non-interactive by slug
+uv run pst-cli my-api fastapi
+uv run pst-cli my-bot telegram --no-editor
 
-To run the Project Setup Tool, you can use the provided `.bat` file for Windows.
+# Non-interactive by number
+uv run pst-cli my-dash 6
 
-#### Windows
+# List all profiles
+uv run pst-cli --list
+```
 
-1. **Create a `.bat` file**:
-   Create a file named `run.bat` with the following content:
+## Environment Variables
 
-   ```bat
-   @echo off
-   start "" "C:\path\to\your\python.exe" "C:\path\to\your\project\main.py"
-   ```
+| Variable | Default | Description |
+|---|---|---|
+| `PROJECT_BASE_PATH` | `~/projects` | Default root folder for new projects |
 
-   Replace `"C:\path\to\your\python.exe"` with the path to your Python interpreter and `"C:\path\to\your\project\main.py"` with the path to your main Python script.
-2. **Create a Desktop Shortcut**:
+## Project Structure
 
-   - Right-click on the desktop and select "New" -> "Shortcut".
-   - In the "Location of item" field, enter the full path to the `.bat` file, e.g., `C:\path\to\your\run_project.bat`.
-   - Click "Next", enter a name for the shortcut, and click "Finish".
+```
+project-setup-tool/
+├── app.py            # PyQt5 GUI
+├── cli.py            # CLI entry point
+├── profiles.py       # All 18 project profiles (subclass BaseProfile to add more)
+├── generators.py     # File generators (README, Docker, requirements, ruff, vscode)
+├── setup_service.py  # Setup pipeline (no Qt dependency)
+├── editor.py         # Editor auto-detection and launch
+├── tests/
+│   ├── test_project_templates.py   # basic, data, fastapi profiles
+│   ├── test_new_profiles.py        # flask, fastapi-db, streamlit, mcp, discord
+│   ├── test_cli.py                 # CLI slug resolution and validation
+│   ├── test_file_generators.py     # generators.py unit tests
+│   ├── test_subprocess_calls.py    # git/uv subprocess mocks
+│   └── test_validation.py         # project name validation
+└── .github/workflows/ci.yml
+```
 
-### Usage
+## Extending with a New Profile
 
-1. **Launch the Tool**: Double-click the desktop shortcut to launch the Project Setup Tool.
-2. **Input Project Details**: Enter the project name and select the project type from the dropdown menu.
-3. **Create Project**: Click the "Create Project" button to start the project setup process.
-4. **Monitor Progress**: The progress bar and output console will provide real-time feedback on the setup process.
+```python
+# profiles.py
+class MyProfile(BaseProfile):
+    label = "My Custom Profile"
+    slug  = "my-profile"
+    deps  = ["some-package", "another-package"]
 
-### User Interface (UI)
+    def setup(self, project_dir: str, ctx: ProfileContext) -> None:
+        _write(project_dir, "app/main.py", "print('hello')\n")
+        ctx.create_readme(project_dir, "python app/main.py")
+        ctx.create_docker_files(project_dir, "python app/main.py")
+        ctx.create_requirements(project_dir, self.deps + _BASE_TEST_DEPS)
+        ctx.emit("SUCCESS: My Custom Profile project set up.")
 
-The Project Setup Tool features a modern, user-friendly interface built with PyQt5. The UI includes the following elements:
+# Then add it to ALL_PROFILES list at the bottom of profiles.py
+```
 
-- **Project Name Input**: A text field where users can enter the name of the project.
-- **Project Type Selection**: A dropdown menu that allows users to select the type of project (Basic Python, Data Analytics, FastAPI).
-- **Create and Cancel Buttons**: Buttons to start the project creation process or cancel the operation.
-- **Output Console**: A text area that displays real-time logs and feedback, with syntax highlighting for different log levels (INFO, SUCCESS, ERROR).
-- **Progress Bar**: A visual indicator that shows the progress of the project setup process.
+## Running Tests
 
-## Contributing
+```bash
+uv run pytest -v
+```
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue if you find any bugs or have suggestions for improvements.
+113 tests across all profiles and subsystems.
+
+## Tool Dependencies
+
+- `PyQt5 >= 5.15.11` (with `PyQt5-Qt5 == 5.15.2` override for Windows compatibility)
+- `requests >= 2.32.3`
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://opensource.org/license/mit) file for details.
+MIT — see [LICENSE](LICENSE)
+
+
