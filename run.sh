@@ -8,4 +8,3 @@
 # CLI (non-interactive)
 # uv run pst-cli --name my-project --profile fastapi --dir ~/projects
 uv run pst
-
